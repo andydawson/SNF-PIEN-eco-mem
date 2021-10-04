@@ -73,7 +73,7 @@ datasets = [
 ]
 
 detrending_methods = [
-    DetrendMethod('Mean', 'X'),
+    DetrendMethod('mean', 'X'),
     DetrendMethod('ModNegExp', 'X'),
     DetrendMethod('Spline30', 'X'),
     DetrendMethod('Spline50', 'X'),
@@ -226,13 +226,15 @@ def execute1(run):
 
 
 @cli.command()
-def execute():
+@click.option('--allow-dirty', default=False, is_flag=True, help='Allow the repo to be dirty.')
+@click.option('--processes', type=int, default=None, help='Number of runs to perform concurrently.')
+def execute(allow_dirty, processes):
     """Execute all the runs..."""
-    if is_dirty():
+    if not allow_dirty and is_dirty():
         print("REPO IS DIRTY!")
         raise SystemExit
 
-    with multiprocessing.Pool() as p:
+    with multiprocessing.Pool(processes) as p:
         p.map(execute1, runs)
 
 
