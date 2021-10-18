@@ -22,6 +22,7 @@ data {
   int<lower=0> N_covars;
   int<lower=0> n_basis;
   int<lower=0> n_knots;
+  real sigma_eta;
   
   vector[N_years] Y[N_sites];
   matrix[N_years, N_covars] X[N_sites];
@@ -38,11 +39,8 @@ data {
   
 } 
 transformed data {
-    real sigma_eta;
     vector[N_years] logY[N_sites];
       
-    sigma_eta = 0.1;
-
     for (site in 1:N_sites){
       logY[site] = log(Y[site]);
     }

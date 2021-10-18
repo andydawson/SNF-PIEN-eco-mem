@@ -9,12 +9,17 @@ import textwrap
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
+from shutil import copyfile
 from typing import List
+
+top = Path(__file__).resolve().parent.parent
 
 
 @click.group()
 def cli():
     pass
+
+# sigma: 0.1, 0.03
 
 
 #
@@ -47,15 +52,17 @@ class Covariates:
 
 @dataclass
 class Model:
-    description: str
     tag: str
+    description: str
     lag: int
+    sigma: float
     stan: str
     r: str
 
 
 @dataclass
 class Run:
+    tag: str
     dset: Dataset
     detrend: DetrendMethod
     memvar: MemoryVariable
@@ -64,7 +71,7 @@ class Run:
 
     @property
     def path(self):
-        return Path('output') / self.dset.tag / self.detrend.tag / self.memvar.name / ujoin(self.covars.names) / self.model.tag / f'lag{self.model.lag}'
+        return Path('output') / self.dset.tag / self.detrend.tag / self.memvar.name / ujoin(self.covars.names) / self.model.tag
 
     def __post_init__(self):
         covars = set(self.covars.names)
@@ -87,7 +94,7 @@ detrending_methods = [
     DetrendMethod('ModHugershoff', 'X'),
 ]
 
-memory_variables = [
+modern_memory_variables = [
     MemoryVariable('tmin.may'),
     MemoryVariable('tmean.aug'),
 ]
@@ -97,7 +104,7 @@ paleo_memory_variables = [
     MemoryVariable('swe.yel'),
 ]
 
-covariates = [
+modern_covariates = [
     Covariates(['ppt.aug', 'pdsi.sep']),
 ]
 
@@ -106,15 +113,21 @@ paleo_covariates = [
 ]
 
 models = [
-    Model('IMP; log(Y)', 'imp_logy', 6, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R')
+    Model('imp_logy-lag6-sigma010', 'IMP; log(Y)', 6, 0.10, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
+    Model('imp_logy-lag6-sigma022', 'IMP; log(Y)', 6, 0.22, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
+    Model('imp_logy-lag6-sigma032', 'IMP; log(Y)', 6, 0.32, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
+    Model('imp_logy-lag6-sigma045', 'IMP; log(Y)', 6, 0.45, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
+    Model('imp_logy-lag6-sigma055', 'IMP; log(Y)', 6, 0.55, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
 ]
 
 runs = [
-    Run(dset, detrend, memvar, covars, model) for dset, detrend, memvar, covars, model in product(datasets, detrending_methods, memory_variables, covariates, models)
-]
-
-paleo_runs = [
-    Run(dset, detrend, memvar, covars, model) for dset, detrend, memvar, covars, model in product(datasets, detrending_methods, paleo_memory_variables, paleo_covariates, models)
+    Run('modern', dset, detrend, memvar, covars, model)
+      for dset, detrend, memvar, covars, model
+      in product(datasets, detrending_methods, modern_memory_variables, modern_covariates, models)
+] + [
+    Run('paleo', dset, detrend, memvar, covars, model)
+      for dset, detrend, memvar, covars, model
+      in product(datasets, detrending_methods, paleo_memory_variables, paleo_covariates, models)
 ]
 
 plot = 'plot_ecomem_basis_imp.R'
@@ -141,7 +154,7 @@ def is_dirty():
     return p.returncode != 0
 
 
-def commit():
+def git_commit():
     p = subprocess.run(['git', 'rev-parse', 'HEAD'],
                        stdout=subprocess.PIPE, encoding='ascii', check=True)
     return p.stdout.strip()
@@ -158,7 +171,6 @@ def overview():
     print('# Datasets')
     print('')
 
-    # XXX type and climate
     print(f'| {"tag":10} | {"description":40} | {"files":80} |')
     print(f'|-{10*"-"}-|-{40*"-"}-|-{80*"-"}-|')
 
@@ -179,28 +191,27 @@ def overview():
     print('# Models')
     print('')
 
-    print(f'| {"tag":10} | {"description":40} | {"lag":3} | {"stan":40} | {"r":40} |')
-    print(f'|-{10*"-"}-|-{40*"-"}-|-{3*"-"}-|-{40*"-"}-|-{40*"-"}-|')
+    print(f'| {"tag":40} | {"description":30} | {"lag":3} | {"sigma":10} | {"stan":40} | {"r":40} |')
+    print(f'|-{40*"-"}-|-{30*"-"}-|-{3*"-"}-|-{10*"-"}-|-{40*"-"}-|-{40*"-"}-|')
 
-    # XXX r
     for model in models:
-        print(f'| {model.tag:10} | {model.description:40} | {model.lag:3} | {model.stan:40} | {model.r:40} |')
+        print(f'| {model.tag:40} | {model.description:30} | {model.lag:3} | {model.sigma:10.4f} | {model.stan:40} | {model.r:40} |')
     print('')
 
     print('# Runs')
     print('')
 
-    print(f'| {"dataset":10} | {"detrend":24} | {"memvar":12} | {"covars":24} | {"lag":3} | {"model":12} | {"path":80} |')
-    print(f'|-{10*"-"}-|-{24*"-"}-|-{12*"-"}-|-{24*"-"}-|-{3*"-"}-|-{12*"-"}-|-{80*"-"}-|')
+    print(f'| {"tag":10} | {"dataset":10} | {"detrend":24} | {"memvar":12} | {"covars":24} | {"model":12} |')
+    print(f'|-{10*"-"}-|-{10*"-"}-|-{24*"-"}-|-{12*"-"}-|-{24*"-"}-|-{12*"-"}-|')
 
     for run in runs:
-        print(f'| {run.dset.tag:10} | {run.detrend.tag:24} | {run.memvar.name:12} | {cjoin(run.covars.names):24} | {run.model.lag:3} | {run.model.tag:12} | {str(run.path):80} |')
+        print(f'| {run.tag:10} | {run.dset.tag:10} | {run.detrend.tag:24} | {run.memvar.name:12} | {cjoin(run.covars.names):24} | {run.model.tag:12} |')
 
 
 def rscript(run):
     """Generate a R script to perform the run."""
 
-    suffix = commit()[:8]
+    suffix = git_commit()[:8]
     return textwrap.dedent(f'''\
       # dataset info
       sites            = c({qcjoin(run.dset.sites)})
@@ -209,6 +220,7 @@ def rscript(run):
       covars           = c({qcjoin(run.covars.names)})
       mem_var          = '{run.memvar.name}'
       lag              = {run.model.lag}
+      sigma            = {run.model.sigma}
 
       # stan
       N_iter           = 1000
@@ -244,30 +256,28 @@ def execute1(run):
 
 
 @cli.command()
-@click.argument('type')
+@click.argument('tag')
 @click.option('--allow-dirty', default=False, is_flag=True, help='Allow the repo to be dirty.')
 @click.option('--processes', type=int, default=None, help='Number of runs to perform concurrently.')
 @click.option('--dry-run', default=False, is_flag=True, help='Dry run.')
-def execute(type, allow_dirty, processes, dry_run):
+def execute(tag, allow_dirty, processes, dry_run):
     """Execute all the runs..."""
-    if type not in ['modern', 'paleo']:
-        print("Type must be 'modern' or 'paleo'.")
+    if tag not in ['modern', 'paleo']:
+        print("Tag must be 'modern' or 'paleo'.")
         return
 
     if not allow_dirty and is_dirty():
         print("REPO IS DIRTY!")
         return
 
-    _runs = runs
-    if type == 'paleo':
-        _runs = paleo_runs
+    filtered_runs = [run for run in runs if run.tag == tag]
 
     if dry_run:
-        for run in _runs:
+        for run in filtered_runs:
             print(run)
     else:
         with multiprocessing.Pool(processes) as p:
-            p.map(execute1, _runs)
+            p.map(execute1, filtered_runs)
 
 
 @cli.command()
@@ -283,7 +293,9 @@ def consolidate(commit):
 
     for run in runs:
         src = run.path / commit / f'cmem_antecedent-weight-_{commit}.png'
-        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-lag{run.model.lag}-{commit}.png'
+        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-lag{run.model.lag}-lag{run.model.sigma}-{commit}.png'
+        if src.exists():
+            copyfile(src, dst)
 
 
 #
