@@ -66,6 +66,11 @@ class Run:
     def path(self):
         return Path('output') / self.dset.tag / self.detrend.tag / self.memvar.name / ujoin(self.covars.names) / self.model.tag / f'lag{self.model.lag}'
 
+    def __post_init__(self):
+        covars = set(self.covars.names)
+        if self.memvar.name in covars:
+            covars.remove(self.memvar.name)
+            self.covars = Covariates(list(covars))
 
 datasets = [
     Dataset('three-bi', 'Three sites (BTP, CBS, TOW); BI', 'bi', ["BTP", "CBS", "TOW"]),
@@ -87,8 +92,17 @@ memory_variables = [
     MemoryVariable('tmean.aug'),
 ]
 
+paleo_memory_variables = [
+    MemoryVariable('stream.yel'),
+    MemoryVariable('swe.yel'),
+]
+
 covariates = [
     Covariates(['ppt.aug', 'pdsi.sep']),
+]
+
+paleo_covariates = [
+    Covariates(['stream.yel', 'swe.yel', 'tmax.lsum']),
 ]
 
 models = [
@@ -97,6 +111,10 @@ models = [
 
 runs = [
     Run(dset, detrend, memvar, covars, model) for dset, detrend, memvar, covars, model in product(datasets, detrending_methods, memory_variables, covariates, models)
+]
+
+paleo_runs = [
+    Run(dset, detrend, memvar, covars, model) for dset, detrend, memvar, covars, model in product(datasets, detrending_methods, paleo_memory_variables, paleo_covariates, models)
 ]
 
 plot = 'plot_ecomem_basis_imp.R'
@@ -226,16 +244,32 @@ def execute1(run):
 
 
 @cli.command()
+@click.argument('type')
 @click.option('--allow-dirty', default=False, is_flag=True, help='Allow the repo to be dirty.')
 @click.option('--processes', type=int, default=None, help='Number of runs to perform concurrently.')
-def execute(allow_dirty, processes):
+@click.option('--dry-run', default=False, is_flag=True, help='Dry run.')
+def execute(type, allow_dirty, processes, dry_run):
     """Execute all the runs..."""
+    if type not in ['modern', 'paleo']:
+        print("Type must be 'modern' or 'paleo'.")
+        return
+
     if not allow_dirty and is_dirty():
         print("REPO IS DIRTY!")
-        raise SystemExit
+        return
 
-    with multiprocessing.Pool(processes) as p:
-        p.map(execute1, runs)
+    _runs = runs
+    if type == 'paleo':
+        _runs = paleo_runs
+
+    if dry_run:
+        for run in _runs:
+            print(run)
+    else:
+        with multiprocessing.Pool(processes) as p:
+            p.map(execute1, _runs)
+
+
 @cli.command()
 @click.option('--commit', default=None)
 def consolidate(commit):
