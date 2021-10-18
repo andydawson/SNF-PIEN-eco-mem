@@ -236,6 +236,20 @@ def execute(allow_dirty, processes):
 
     with multiprocessing.Pool(processes) as p:
         p.map(execute1, runs)
+@cli.command()
+@click.option('--commit', default=None)
+def consolidate(commit):
+    """Consolidate figures..."""
+
+    dest = Path(top / 'output' / 'consolidated')
+    dest.mkdir(exist_ok=True)
+
+    if commit is None:
+        commit = git_commit()[:8]
+
+    for run in runs:
+        src = run.path / commit / f'cmem_antecedent-weight-_{commit}.png'
+        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-lag{run.model.lag}-{commit}.png'
 
 
 #
