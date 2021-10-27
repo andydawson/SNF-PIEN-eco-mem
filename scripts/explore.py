@@ -293,7 +293,7 @@ def consolidate(commit):
 
     for run in runs:
         src = run.path / commit / f'cmem_antecedent-weight-_{commit}.png'
-        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-lag{run.model.lag}-lag{run.model.sigma}-{commit}.png'
+        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-{commit}.png'
         if src.exists():
             copyfile(src, dst)
 
