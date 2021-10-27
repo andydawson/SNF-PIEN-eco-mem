@@ -19,8 +19,6 @@ top = Path(__file__).resolve().parent.parent
 def cli():
     pass
 
-# sigma: 0.1, 0.03
-
 
 #
 # Definitions
@@ -160,6 +158,12 @@ def git_commit():
     return p.stdout.strip()
 
 
+def mgetattr(obj, attrs):
+    o = obj
+    for attr in attrs:
+        o = getattr(o, attr)
+    return o
+
 #
 # Overview
 #
@@ -256,21 +260,21 @@ def execute1(run):
 
 
 @cli.command()
-@click.argument('tag')
+@click.option('--filter', default=None)
 @click.option('--allow-dirty', default=False, is_flag=True, help='Allow the repo to be dirty.')
 @click.option('--processes', type=int, default=None, help='Number of runs to perform concurrently.')
 @click.option('--dry-run', default=False, is_flag=True, help='Dry run.')
-def execute(tag, allow_dirty, processes, dry_run):
+def execute(filter, allow_dirty, processes, dry_run):
     """Execute all the runs..."""
-    if tag not in ['modern', 'paleo']:
-        print("Tag must be 'modern' or 'paleo'.")
-        return
-
     if not allow_dirty and is_dirty():
         print("REPO IS DIRTY!")
         return
 
-    filtered_runs = [run for run in runs if run.tag == tag]
+    filtered_runs = list(runs)
+    for f in filter.split('/'):
+        attrs, value = f.split(':')
+        attrs = attrs.split('.')
+        filtered_runs = [run for run in filtered_runs if mgetattr(run, attrs) == value]
 
     if dry_run:
         for run in filtered_runs:
