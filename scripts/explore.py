@@ -85,11 +85,11 @@ datasets = [
 detrending_methods = [
     DetrendMethod('mean', 'X'),
     DetrendMethod('ModNegExp', 'X'),
-    DetrendMethod('Spline30', 'X'),
-    DetrendMethod('Spline50', 'X'),
+    # DetrendMethod('Spline30', 'X'),
+    # DetrendMethod('Spline50', 'X'),
     DetrendMethod('Spline80', 'X'),
-    DetrendMethod('Friedman', 'X'),
-    DetrendMethod('ModHugershoff', 'X'),
+    # DetrendMethod('Friedman', 'X'),
+    # DetrendMethod('ModHugershoff', 'X'),
 ]
 
 modern_memory_variables = [
