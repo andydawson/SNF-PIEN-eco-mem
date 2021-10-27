@@ -75,7 +75,7 @@ class Run:
         covars = set(self.covars.names)
         if self.memvar.name in covars:
             covars.remove(self.memvar.name)
-            self.covars = Covariates(list(covars))
+            self.covars = Covariates(sorted(list(covars)))
 
 datasets = [
     Dataset('three-bi', 'Three sites (BTP, CBS, TOW); BI', 'bi', ["BTP", "CBS", "TOW"]),
@@ -216,7 +216,16 @@ def overview():
 def rscript(run):
     """Generate a R script to perform the run."""
 
-    suffix = git_commit()[:8]
+    commit = git_commit()[:8]
+    serial = 0
+    suffix = commit
+    while True:
+        path = run.path / f'data_ecomem_basis_imp_{suffix}.RDS'
+        if not path.exists():
+            break
+        serial += 1
+        suffix = f'{commit}-{serial:02d}'
+
     return textwrap.dedent(f'''\
       # dataset info
       sites            = c({qcjoin(run.dset.sites)})
