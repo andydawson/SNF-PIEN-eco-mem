@@ -125,6 +125,7 @@ n_knots = nrow(B)
 dat = list(N_years = N_years,
            N_sites = N_sites,
            lag = lag,
+           sigma_eta = sigma,
            N_covars = N_covars,
            n_basis = n_basis,
            n_knots = n_knots,
