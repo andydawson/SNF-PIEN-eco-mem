@@ -150,8 +150,6 @@ saveRDS(dat, paste0(path_output, '/data_ecomem_basis_imp_', suffix, '.RDS'))
 ## compile model and perform sampling
 #######################################################################################
 
-N_iter = N_iter
-
 sm<-stan_model(model_name)
 
 # parameter estimation

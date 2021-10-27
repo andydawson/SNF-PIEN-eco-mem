@@ -111,12 +111,12 @@ paleo_covariates = [
 ]
 
 models = [
+    Model('imp_logy-lag6-sigma001', 'IMP; log(Y)', 6, 0.01, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
+    Model('imp_logy-lag6-sigma005', 'IMP; log(Y)', 6, 0.05, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma010', 'IMP; log(Y)', 6, 0.10, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma022', 'IMP; log(Y)', 6, 0.22, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma032', 'IMP; log(Y)', 6, 0.32, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
-    Model('imp_logy-lag6-sigma045', 'IMP; log(Y)', 6, 0.45, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
-    Model('imp_logy-lag6-sigma055', 'IMP; log(Y)', 6, 0.55, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
-]
+ ]
 
 runs = [
     Run('modern', dset, detrend, memvar, covars, model)
