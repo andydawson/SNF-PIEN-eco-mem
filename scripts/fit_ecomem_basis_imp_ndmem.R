@@ -146,6 +146,12 @@ if (!dir.exists(path_output)){
 
 saveRDS(dat, paste0(path_output, '/data_ecomem_basis_imp_', suffix, '.RDS'))
 
+if (include_inits) {
+  inits = readRDS(init_file)
+} else {
+  inits = list()
+}
+
 #######################################################################################
 ## compile model and perform sampling
 #######################################################################################
@@ -154,11 +160,12 @@ sm<-stan_model(model_name)
 
 # parameter estimation
 fit<-sampling(sm,
-              data=dat,
-              iter=N_iter,
-              warmup=N_iter/2,
+              data = dat,
+              iter = N_iter,
+              warmup = N_iter/2,
               chains = 1, 
-              cores = 1)
+              cores = 1,
+              init = ifelse(include_inits, inits, 'random'))
 
 # save stan fit object for subsequent analysis
 saveRDS(fit, paste0(path_output, '/fit_ecomem_basis_imp_', suffix, '.RDS'))

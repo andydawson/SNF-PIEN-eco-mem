@@ -217,14 +217,21 @@ def rscript(run):
     """Generate a R script to perform the run."""
 
     commit = git_commit()[:8]
-    serial = 0
-    suffix = commit
+    serial = 1
+    suffix = f'{commit}-{serial:02d}'
     while True:
         path = run.path / f'data_ecomem_basis_imp_{suffix}.RDS'
         if not path.exists():
             break
         serial += 1
         suffix = f'{commit}-{serial:02d}'
+
+    # XXX this belong somewhere else
+    include_inits = 0
+    init_file     = ''
+    if run.tag == 'paleo' and run.model.lag == 6:
+        include_inits = 1
+        init_file     = 'data/inits/paleo-stream.yel-lag6.RDS'
 
     return textwrap.dedent(f'''\
       # dataset info
@@ -241,7 +248,8 @@ def rscript(run):
       model_name       = 'scripts/{run.model.stan}'
       include_outbreak = 0
       include_fire     = 0
-      include_inits    = 0
+      include_inits    = {include_inits}
+      init_file        = '{init_file}'
 
       # output
       suffix           = '{suffix}'
@@ -307,8 +315,9 @@ def consolidate(commit):
 
     for run in runs:
         src = run.path / commit / f'cmem_antecedent-weight-_{commit}.png'
-        dst = dest / f'cmem_antecedent-weight-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}-{commit}.png'
+        dst = dest / commit / f'cmem_antecedent-weight-{run.tag}-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}.png'
         if src.exists():
+            dst.parent.mkdir(exist_ok=True)
             copyfile(src, dst)
 
 
