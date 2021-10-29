@@ -314,11 +314,16 @@ def consolidate(commit):
         commit = git_commit()[:8]
 
     for run in runs:
-        src = run.path / commit / f'cmem_antecedent-weight-_{commit}.png'
-        dst = dest / commit / f'cmem_antecedent-weight-{run.tag}-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}.png'
-        if src.exists():
-            dst.parent.mkdir(exist_ok=True)
-            copyfile(src, dst)
+        pattern = commit + '*/cmem_antecedent-weight-*{commit}*.png'
+        for src in run.path.glob(commit + '*/cmem_antecedent-weight-*.png'):
+            if 'smooth' in str(src):
+                continue
+            suffix = src.parts[-2]
+            dst = dest / f'{suffix}-cmem_antecedent-weight-{run.tag}-{run.dset.tag}-{run.detrend.tag}-{run.memvar.name}-{ujoin(run.covars.names)}-{run.model.tag}.png'
+            if src.exists():
+                dst.parent.mkdir(exist_ok=True)
+                copyfile(src, dst)
+
 
 
 #
