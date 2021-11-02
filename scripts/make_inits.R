@@ -1,6 +1,7 @@
 library(rstan)
 
-fit_file = 'output/three-bi/ModNegExp/stream.yel/swe.yel_tmax.lsum/imp_logy-lag6-sigma002/fit_ecomem_basis_imp_7a490640.RDS'
+#fit_file = 'output/three-bi/ModNegExp/stream.yel/swe.yel_tmax.lsum/imp_logy-lag6-sigma002/fit_ecomem_basis_imp_7a490640.RDS'
+fit_file = 'output/three-bi/ModNegExp/tmin.may/ppt.aug_pdsi.sep/imp_logy-lag6-sigma005/fit_ecomem_basis_imp_7a490640.RDS'
 
 fit <- readRDS(fit_file)
 pars <- extract(fit)
