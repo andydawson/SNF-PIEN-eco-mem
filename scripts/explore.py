@@ -111,6 +111,7 @@ paleo_covariates = [
 ]
 
 models = [
+    Model('imp_logy-lag6-sigma0001', 'IMP; log(Y)', 6, 0.001, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma001', 'IMP; log(Y)', 6, 0.01, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma002', 'IMP; log(Y)', 6, 0.02, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
     Model('imp_logy-lag6-sigma005', 'IMP; log(Y)', 6, 0.05, 'ecomem_basis_imp_logy_0dmem.stan', 'fit_ecomem_basis_imp_ndmem.R'),
@@ -229,9 +230,13 @@ def rscript(run):
     # XXX this belong somewhere else
     include_inits = 0
     init_file     = ''
-    if run.tag == 'paleo' and run.model.lag == 6:
+    if run.tag == 'paleo' and run.dset.type == 'bi' and run.model.lag == 6:
         include_inits = 1
         init_file     = 'data/inits/paleo-stream.yel-lag6.RDS'
+
+    if run.tag == 'paleo' and run.dset.type == 'rw' and run.model.lag == 6:
+        include_inits = 1
+        init_file     = 'data/inits/paleo-swe.yel-lag6.RDS'
 
     if run.tag == 'modern' and run.model.lag == 6:
         include_inits = 1
