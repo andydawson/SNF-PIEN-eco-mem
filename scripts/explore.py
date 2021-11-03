@@ -240,7 +240,7 @@ def rscript(run):
 
     if run.tag == 'modern' and run.model.lag == 6:
         include_inits = 1
-        init_file     = 'data/inits/modern-ppt.aug-lag6.RDS'
+        init_file     = 'data/inits/modern-tmin.may-lag6.RDS'
 
     return textwrap.dedent(f'''\
       # dataset info
