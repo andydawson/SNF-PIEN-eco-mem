@@ -24,12 +24,12 @@ N_warmup         = 500
 model_name       = 'scripts/ecomem_logy_0dmem_tree.stan'
 include_outbreak = 0
 include_fire     = 0
-include_inits    = 0
-# init_file        = 'data/inits/modern-tmin.may-lag6.RDS'
+include_inits    = 1
+init_file        = 'data/inits/modern-tmin.may-lag6.RDS'
 init_file        = 'inits.RDS'
 
 # output
-serial           = '02'
+serial           = '03'
 suffix           = paste0(serial, '-modern-three-ind-', type, '-', mem_var, '-', paste(covars, collapse='', sep='_'))
 path_output      = 'output'
 path_figures     = 'output'
