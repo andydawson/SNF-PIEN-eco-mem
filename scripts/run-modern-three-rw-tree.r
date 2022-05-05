@@ -6,7 +6,7 @@
 
 # dataset info
 sites            = c("BTP","CBS","TOW")
-type             = 'bi'
+type             = 'rw'
 # detrend_method   = 'Spline80'
 covars           = c("ppt.aug","pdsi.sep")
 # covars           = c("tmin.may", "ppt.aug")
@@ -15,20 +15,20 @@ mem_var          = 'tmin.may'
 # mem_var          = "pdsi.sep"
 # mem_var          = "ppt.aug"
 lag              = 6
-sigma            = 0.05
+sigma            = 0.1
 era = "modern"
 
 # stan
 N_iter           = 1000
 N_warmup         = 500
-model_name       = 'scripts/ecomem_logy_0dmem_tree.stan'
+model_name       = 'scripts/ecomem_logy_0dmem_tree.stan'#'scripts/ecomem_logy_0dmem_tree_nositesig.stan'
 # model_name       = 'scripts/ecomem_logy_0dmem_tree_site.stan'
 include_outbreak = 0
 include_fire     = 0
 include_inits    = 1
 # init_file        = 'data/inits/modern-tmin.may-lag6.RDS'
 # init_file        = 'inits_ind_site.RDS'
-init_file        = 'inits_ind_bi.RDS'
+init_file        = 'inits_ind_rw.RDS'
 
 # output
 serial           = '01s'

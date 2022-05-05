@@ -4,6 +4,9 @@ library(dplR)
 
 
 source("scripts/read.tre.r")
+
+dir.create(paste0(path_figures, '/', suffix))
+# path_figures = paste0(path_figures, '/', suffix)
 # tmp <- read.tre('data/tree/TrwARS.TRE')
 # 
 # sites            = c("BTP","CBS","TOW")
@@ -190,7 +193,7 @@ if (!dir.exists(path_output)){
   dir.create(path_output)
 }
 
-saveRDS(dat, paste0(path_output, '/data_ecomem_basis_ind_', suffix, '.RDS'))
+saveRDS(dat, paste0(path_figures, '/', suffix, '/data_ecomem_basis_tree.RDS'))
 
 if (include_inits) {
   inits = readRDS(init_file)
@@ -239,5 +242,7 @@ fit<-sampling(sm,
               init = ifelse(include_inits, inits, 'random'))
 
 # save stan fit object for subsequent analysis
-saveRDS(fit, paste0(path_output, '/fit_ecomem_ind_', suffix, '.RDS'))
+
+
+saveRDS(fit, paste0(path_figures, '/', suffix, '/fit_ecomem_tree.RDS'))
 

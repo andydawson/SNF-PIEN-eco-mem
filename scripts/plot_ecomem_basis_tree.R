@@ -29,7 +29,7 @@ spherical <- function(x, phi) {
 # 
 # suff = 'imp'
 
-fit = readRDS(paste0(path_output, '/fit_ecomem_ind_', suffix, '.RDS'))
+fit = readRDS(paste0(path_output, '/', suffix, '/fit_ecomem_tree.RDS'))
 
 plot(fit)
 
@@ -43,7 +43,7 @@ names(post)
 ## load data
 #######################################################################################
 
-dat = readRDS(paste0(path_output, '/data_ecomem_basis_ind_', suffix, '.RDS'))
+dat = readRDS(paste0(path_output, '/', suffix, '/data_ecomem_basis_tree.RDS'))
 
 n_basis = dat$n_basis
 N_sites = dat$N_sites
@@ -89,7 +89,7 @@ if ((include_outbreak==1)&(include_fire==0)){
     xlab('phi') +
     ylab('frequency') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_hist_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_hist.png'))
   
   ggplot(data=tau_melt) + 
     geom_line(aes(x = iter, y = value)) + 
@@ -97,7 +97,7 @@ if ((include_outbreak==1)&(include_fire==0)){
     xlab('iter') +
     ylab('value') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_trace_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_trace.png'))
   
   
   x = seq(1e-6, 10, by=0.1)
@@ -141,7 +141,7 @@ if ((include_outbreak==1)&(include_fire==0)){
     # xlab("Lag") +
     ylab("Discrete Antecedent Weight") +
     scale_x_continuous(name="Lag", breaks=seq(0, 10))
-  ggsave(paste0(path_figures, '/dmem_antecedent-weight_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_antecedent_weight.png'))
   
 }
 if ((include_outbreak==0)&(include_fire==1)){
@@ -162,7 +162,7 @@ if ((include_outbreak==0)&(include_fire==1)){
     xlab('phi') +
     ylab('frequency') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_hist_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_hist.png'))
   
   ggplot(data=tau_melt) + 
     geom_line(aes(x = iter, y = value)) + 
@@ -170,7 +170,7 @@ if ((include_outbreak==0)&(include_fire==1)){
     xlab('iter') +
     ylab('value') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_trace_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_trace.png'))
   
   
   x = seq(1e-6, lag, by=0.1)
@@ -214,7 +214,7 @@ if ((include_outbreak==0)&(include_fire==1)){
     # xlab("Lag") +
     ylab("Discrete Antecedent Weight") +
     scale_x_continuous(name="Lag", breaks=seq(0, 6))
-  ggsave(paste0(path_figures, '/dmem_antecedent-weight_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_antecedent_weight.png'))
 
 }
 
@@ -240,7 +240,7 @@ if ((include_outbreak)&(include_fire)){
     xlab('phi') +
     ylab('frequency') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_hist_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_hist.png'))
   
   ggplot(data=tau_melt) + 
     geom_line(aes(x = iter, y = value)) + 
@@ -248,7 +248,7 @@ if ((include_outbreak)&(include_fire)){
     xlab('iter') +
     ylab('value') +
     theme_bw()
-  ggsave(paste0(path_figures, '/dmem_tau_trace_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_tau_trace.png'))
   
   
   x = seq(1e-6, lag, by=0.1)
@@ -302,7 +302,7 @@ if ((include_outbreak)&(include_fire)){
     # xlab("Lag") +
     ylab("Discrete Antecedent Weight") +
     scale_x_continuous(name="Lag", breaks=seq(0, 6))
-  ggsave(paste0(path_figures, '/dmem_antecedent-weight_', suffix, '.png'))
+  ggsave(paste0(path_figures, '/dmem_antecedent_weight.png'))
 }
 
 ## continuous memory
@@ -325,12 +325,12 @@ ggplot(data=w_dat) +
   xlab('Lag') +
   ylab('Antecedent weight')
   #scale_y_discrete(limits=rev)
-ggsave(paste0(path_figures, '/cmem_antecedent-weight-discrete_', suffix, '.png'))
+ggsave(paste0(path_figures, '/antecedent_weight.png'))
 
 vals = seq(0, lag)
 w_dat$vals = vals
 w_dat = data.frame(w_dat, type=paste(type, era, mem_name))
-saveRDS(w_dat, paste0(path_figures, '/w_dat_', paste0(type, '_', era), '.RDS'))
+saveRDS(w_dat, paste0(path_figures, '/w_dat.RDS'))
 
 ggplot(data=w_dat) + 
   geom_line(aes(x=vals, y=q50),) +
@@ -340,7 +340,7 @@ ggplot(data=w_dat) +
   ylab(paste0(mem_name, " \n Antecedent Weight")) +
   #ylab("Continuous \n Antecedent Weight") +
   scale_x_continuous(name="Lag", breaks=seq(0, lag))
-ggsave(paste0(path_figures, '/cmem_antecedent-weight-_', suffix, '.png'))
+ggsave(paste0(path_figures, '/antecedent_weight_ribbon.png'))
 
 # # fit GAM model
 # m <- gam(q50 ~ s(vals, k=4), data = w_dat, method='REML') 
@@ -374,7 +374,7 @@ ggsave(paste0(path_figures, '/cmem_antecedent-weight-_', suffix, '.png'))
 #   theme(text = element_text(size=16)) +
 #   ylab("Continuous \n Antecedent Weight") +
 #   scale_x_continuous(name="Lag", breaks=seq(0, lag))
-# ggsave(paste0(path_figures, '/cmem_antecedent-weight-smooth_', suffix, '.png'))
+# ggsave(paste0(path_figures, '/antecedent-weight-smooth_', suffix, '.png'))
 
 ## gamma
 gamma_idx = which(substr(names(post), 1, 5) == "gamma")
@@ -410,7 +410,7 @@ ggplot(data=gamma_melt) +
   ylab('frequency') +
   theme_bw() #+ 
   #coord_flip()
-ggsave(paste0(path_figures, '/gamma_hist_', suffix, '.png'), height=4)
+ggsave(paste0(path_figures, '/gamma_hist.png'), height=4)
 
 ggplot(data=gamma_melt) + 
   geom_line(aes(x = iter, y = value)) + 
@@ -418,7 +418,7 @@ ggplot(data=gamma_melt) +
   xlab('iter') +
   ylab('value') +
   theme_bw()
-ggsave(paste0(path_figures, '/gamma_trace_', suffix, '.png'))
+ggsave(paste0(path_figures, '/gamma_trace.png'))
 
 
 # #quantile(gamma1, c(0.10, 0.5, 0.90))
@@ -451,7 +451,7 @@ ggplot(data=beta_melt) +
   ylab('frequency') +
   theme_bw() #+ 
 #coord_flip()
-ggsave(paste0(path_figures, '/beta_hist_', suffix, '.png'), height=6)
+ggsave(paste0(path_figures, '/beta_hist.png'), height=6)
 
 ggplot(data=beta_melt) + 
   geom_line(aes(x = iter, y = value)) + 
@@ -459,7 +459,7 @@ ggplot(data=beta_melt) +
   xlab('iter') +
   ylab('value') +
   theme_bw()
-ggsave(paste0(path_figures, '/beta_trace_', suffix, '.png'))
+ggsave(paste0(path_figures, '/beta_trace.png'))
 
 
 
@@ -476,7 +476,7 @@ ggplot(data=both_melt,aes(x=value,y=factor(variable, level=rev(level_order)))) +
   geom_vline(xintercept=0, colour="red", linetype="dashed") +
   xlab("value") + 
   ylab("variable")
-ggsave(paste0(path_figures, '/gamma_beta_linerange_', suffix, '.png'), height=4)
+ggsave(paste0(path_figures, '/gamma_beta_linerange.png'), height=4)
 
 
 
@@ -495,7 +495,7 @@ coef_table = both_melt %>%
 
 coef_table = data.frame(coef_table, type=paste(type, era, mem_name))
 
-saveRDS(coef_table, paste0(path_figures, '/coef_table_', paste0(type, '_', era), '.RDS'))
+saveRDS(coef_table, paste0(path_figures, '/coef_table.RDS'))
 
 # 
 # both_melt %>% 
@@ -536,7 +536,7 @@ ggplot(data=sigma_melt) +
   ylab('frequency') +
   theme_bw() #+ 
 #coord_flip()
-ggsave(paste0(path_figures, '/sigma_hist_', suffix, '.png'))
+ggsave(paste0(path_figures, '/sigma_hist.png'))
 
 ggplot(data=sigma_melt) + 
   geom_line(aes(x = iter, y = value)) + 
@@ -544,7 +544,7 @@ ggplot(data=sigma_melt) +
   xlab('iter') +
   ylab('value') +
   theme_bw()
-ggsave(paste0(path_figures, '/sigma_trace_', suffix, '.png'))
+ggsave(paste0(path_figures, '/sigma_trace.png'))
 
 ## u individual effects
 
@@ -604,4 +604,4 @@ ggplot(data=u_mean_dat) +
   ylab('frequency') +
   theme_bw() #+
 #coord_flip()
-ggsave(paste0(path_figures, '/u_hist_', suffix, '.png'))
+ggsave(paste0(path_figures, '/u_hist.png'))
